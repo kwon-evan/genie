@@ -28,7 +28,7 @@ class WeatherApp(App):
         """Update the weather for the given city."""
         weather_widget = self.query_one("#weather", Static)
         if city:
-            weather_widget.update(await update_weather(city))
+            weather_widget.update(await update_weather())
         else:
             # No city, so just blank out the weather
             weather_widget.update("")

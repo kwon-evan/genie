@@ -5,7 +5,7 @@ from rich.text import Text
 from rich import print
 
 
-async def update_weather(city: str) -> Text:
+async def update_weather() -> Text:
     url = f"https://wttr.in/?0nQF&lang=ko"
 
     async with httpx.AsyncClient() as client:
@@ -15,8 +15,7 @@ async def update_weather(city: str) -> Text:
 
 
 async def main():
-    # ret = await get_weather()
-    ret = await update_weather("Gumi")
+    ret = await update_weather()
     print(ret)
 
 
