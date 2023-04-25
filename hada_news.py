@@ -1,10 +1,11 @@
+import asyncio
 from bs4 import BeautifulSoup
 import urllib.request as req
 import ssl
 from rich import print
 
 
-def _topic_parser(topic):
+async def _topic_parser(topic):
     topic_title = topic.find('div', 'topictitle').find('a')
     desc = topic.find('div', 'topicdesc')
     topic_info = topic.find('div', 'topicinfo').text.split('|')[0].split()
@@ -20,14 +21,21 @@ def _topic_parser(topic):
     }
 
 
-def get_articles():
+async def get_articles():
     webpage = req.urlopen(
         'https://news.hada.io/',
         context=ssl._create_unverified_context())
     soup = BeautifulSoup(webpage, 'html.parser')
     topics = soup.find('div', 'topics').findAll('div', 'topic_row')
-    return [_topic_parser(topic) for topic in topics]
+
+    tasks = asyncio.gather(*[_topic_parser(topic) for topic in topics])
+    return await tasks
+
+
+async def main():
+    ret = await get_articles()
+    print(ret)
 
 
 if __name__ == '__main__':
-    print(get_articles())
+    asyncio.run(main())

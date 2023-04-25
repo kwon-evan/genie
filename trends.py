@@ -1,7 +1,9 @@
+import asyncio
+
 from pytrends.request import TrendReq
 
 
-def get_trends():
+async def get_trends():
     pytrends = TrendReq(hl="ko-KR", tz=540)
     return {
         i: row.loc[0]
@@ -9,5 +11,10 @@ def get_trends():
     }
 
 
+async def main():
+    ret = await get_trends()
+    print(ret)
+
+
 if __name__ == "__main__":
-    print(get_trends())
+    asyncio.run(main())
