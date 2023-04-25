@@ -1,9 +1,12 @@
 import httpx
 from rich.text import Text
 
+from textual import work
 from textual.app import App, ComposeResult
 from textual.containers import VerticalScroll
 from textual.widgets import Input, Static
+
+from weather import update_weather
 
 
 class WeatherApp(App):
@@ -12,24 +15,20 @@ class WeatherApp(App):
     CSS_PATH = "weather.css"
 
     def compose(self) -> ComposeResult:
-        yield Input(placeholder="gumi", value='gumi')
+        yield Input(placeholder="Enter a City")
         with VerticalScroll(id="weather-container"):
             yield Static(id="weather")
 
     async def on_input_changed(self, message: Input.Changed) -> None:
         """Called when the input changes"""
-        await self.update_weather(message.value)
+        self.update_weather(message.value)
 
+    @work(exclusive=True)
     async def update_weather(self, city: str) -> None:
         """Update the weather for the given city."""
         weather_widget = self.query_one("#weather", Static)
         if city:
-            # Query the network API
-            url = f"https://wttr.in/{city}"
-            async with httpx.AsyncClient() as client:
-                response = await client.get(url)
-                weather = Text.from_ansi(response.text)
-                weather_widget.update(weather)
+            weather_widget.update(await update_weather(city))
         else:
             # No city, so just blank out the weather
             weather_widget.update("")
