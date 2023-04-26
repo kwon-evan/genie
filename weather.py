@@ -1,23 +1,50 @@
-import asyncio
+from urllib.request import Request, urlopen
 
-import httpx
 from rich.text import Text
-from rich import print
+
+from textual import work
+from textual.app import App, ComposeResult
+from textual.widget import Widget
+from textual.widgets import Static, LoadingIndicator
 
 
-async def update_weather() -> Text:
-    url = f"https://wttr.in/?0nQF&lang=ko"
+class WeatherWidget(Widget):
+    CSS_PATH = "weather.css"
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url)
-        txt = Text.from_ansi(response.text)
-        return txt
+    def compose(self) -> ComposeResult:
+        weather = Static("Now Loading...", id="weather", shrink=True, expand=True)
+        weather.styles.border = ("round", "white")
+        weather.styles.padding = 1
+        weather.styles.box_sizing = "content-box"
+        yield weather
+
+    async def on_mount(self, event: str) -> None:
+        """Called when the widget is mounted."""
+        self.update_weather()
+
+    @work(exclusive=True)
+    def update_weather(self) -> None:
+        """Update the weather for the given city."""
+        weather_widget = self.query_one("#weather", Static)
+
+        # Query the network API
+        url = f"https://wttr.in/?0nQF"
+        # url = f"https://wttr.in/?0nQF&lang=ko"
+        request = Request(url)
+        request.add_header("User-agent", "CURL")
+        response_text = urlopen(request).read().decode("utf-8")
+        weather = Text.from_ansi(response_text)
+        weather_widget.update(weather)
+        self.refresh()
 
 
-async def main():
-    ret = await update_weather()
-    print(ret)
+class WeatherApp(App):
+    """App to display the current weather."""
+
+    def compose(self):
+        yield WeatherWidget()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    app = WeatherApp()
+    app.run()
