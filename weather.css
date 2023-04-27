@@ -1,9 +1,9 @@
-/*#weather {*/
-/*    width: auto;*/
-/*    height: auto;*/
-/*    align: center middle;*/
+#weather {
+    width: auto;
+    height: auto;
+    align: center middle;
 /*    overflow: auto;*/
 /*    border: white;*/
 /*    padding: 1;*/
 /*    box-sizing: content-box;*/
-/*}*/
+}
